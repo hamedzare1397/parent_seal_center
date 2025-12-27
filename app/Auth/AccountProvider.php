@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Fortify\Fortify;
 
 /**
  * این کلاس وظیفه ارتباط با دیتابیس را دارد
@@ -47,7 +48,7 @@ class AccountUserProvider implements UserProvider
 
     public function retrieveByCredentials(#[\SensitiveParameter] array $credentials)
     {
-        return User::where('username',$credentials['username'])->first();
+        return User::where('username',$credentials[Fortify::username()])->first();
     }
 
     public function validateCredentials(Authenticatable $user, #[\SensitiveParameter] array $credentials)
