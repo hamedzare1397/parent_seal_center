@@ -64,7 +64,6 @@ class AccountGuard implements Guard
     public function attempt(array $credentials)
     {
         $user = $this->provider->retrieveByCredentials($credentials);
-
         if (!$user) {
             return false;
         }
@@ -75,6 +74,7 @@ class AccountGuard implements Guard
         }
 
         if ($this->provider->validateCredentials($user, $credentials)) {
+            $user=$user->with(['roles','person'])->first();
             $this->login($user);
             return true;
         }

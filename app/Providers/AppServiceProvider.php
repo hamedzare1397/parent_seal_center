@@ -6,6 +6,7 @@ use App\Auth\AccountGuard;
 use App\Auth\AccountUserProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
+use Inertia\Inertia;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,9 +28,6 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Auth::extend('psc_unique', function ($app, $name, array $config) {
-
-
-
             $provider = Auth::createUserProvider($config['provider']);
 
 
@@ -40,5 +38,18 @@ class AppServiceProvider extends ServiceProvider
             );
 //            return new AccountGuard(Auth::createUserProvider($config['provider']), $app['request']);
         });
+
+        Inertia::share([
+            'auth' => fn () => [
+                'user' => auth()->user()
+                    ? [
+                        'id'         => auth()->user()->id,
+                        'first_name' => auth()->user()->first_name,
+                        'last_name'  => auth()->user()->last_name,
+                        'email'      => auth()->user()->email,
+                    ]
+                    : null,
+            ],
+        ]);
     }
 }

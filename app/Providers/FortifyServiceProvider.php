@@ -7,6 +7,7 @@ use App\Actions\Fortify\ResetUserPassword;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -57,12 +58,14 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::authenticateUsing(function (Request $request) {
             $username=$request->input('username');
             $password=$request->input('password');
+
             if (is_null($username) || is_null($password)) {
                 return null;
             }
             $success=Auth::guard('psc_unique')->attempt(['username' => $username, 'password' => $password]);
             if ($success) {
-                return Auth::guard('psc')->user();
+                $user=Auth::guard('psc_unique')->user();
+                return $user;
             }
             return null;
         });

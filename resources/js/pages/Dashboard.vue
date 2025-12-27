@@ -1,47 +1,32 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
-import { dashboard } from '@/routes';
-import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/vue3';
-import PlaceholderPattern from '../components/PlaceholderPattern.vue';
+import AppLayout from '@/Layouts/AppLayout.vue'
+import { usePage } from '@inertiajs/vue3'
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard().url,
-    },
-];
+defineProps({
+    auth:Object,
+})
+const page = usePage()
 </script>
 
 <template>
-    <Head title="Dashboard" />
+    <AppLayout :user="user">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div
-            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
-        >
-            <div class="grid auto-rows-min gap-4 md:grid-cols-3">
-                <div
-                    class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
-                >
-                    <PlaceholderPattern />
-                </div>
-                <div
-                    class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
-                >
-                    <PlaceholderPattern />
-                </div>
-                <div
-                    class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
-                >
-                    <PlaceholderPattern />
-                </div>
+            <div class="bg-white p-4 rounded shadow">
+                <h2 class="font-bold text-gray-700 mb-2">کاربران</h2>
+                <p class="text-2xl font-bold text-blue-600">{{ page.props.auth }}</p>
             </div>
-            <div
-                class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border"
-            >
-                <PlaceholderPattern />
+
+            <div class="bg-white p-4 rounded shadow">
+                <h2 class="font-bold text-gray-700 mb-2">سفارش‌ها</h2>
+                <p class="text-2xl font-bold text-green-600">۴۵</p>
             </div>
+
+            <div class="bg-white p-4 rounded shadow">
+                <h2 class="font-bold text-gray-700 mb-2">پیام‌ها</h2>
+                <p class="text-2xl font-bold text-purple-600">۸</p>
+            </div>
+
         </div>
     </AppLayout>
 </template>

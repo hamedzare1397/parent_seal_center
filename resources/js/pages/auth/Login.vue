@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import AuthBase from '@/layouts/AuthLayout.vue';
 import { store } from '@/routes/login';
-import { request } from '@/routes/password';
+// import { request } from '@/routes/password';
 import { Form, Head } from '@inertiajs/vue3';
 import {inject} from "vue";
 
@@ -92,7 +92,7 @@ const logoUrl = inject('logoUrl');
                                 <Label for="password">رمز عبور</Label>
                                 <TextLink
                                     v-if="canResetPassword"
-                                    :href="request()"
+                                    href=""
                                     class="text-sm text-primary-600"
                                 >
                                     فراموشی رمز عبور؟
