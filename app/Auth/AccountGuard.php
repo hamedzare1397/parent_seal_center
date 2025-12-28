@@ -37,6 +37,7 @@ class AccountGuard implements Guard
 
         if ($id) {
             $this->user = $this->provider->retrieveById($id);
+//            dd($this->user->toArray(),$id);
         }
 
         return $this->user;
@@ -69,12 +70,13 @@ class AccountGuard implements Guard
         }
 
         // بررسی فعال بودن حساب
-        if (!$user->is_active) {
+        if (!$user->status=='active') {
             return false;
         }
 
         if ($this->provider->validateCredentials($user, $credentials)) {
-            $user=$user->with(['roles','person'])->first();
+//            dd($user);
+//            $user=$user->load(['roles','person']);
             $this->login($user);
             return true;
         }

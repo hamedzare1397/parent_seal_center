@@ -2,58 +2,62 @@
 
 namespace Database\Factories;
 
+use App\Models\Role;
+use App\Models\User;
+use App\Models\Person;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
- */
 class UserFactory extends Factory
 {
-    /**
-     * The current password being used by the factory.
-     */
-    protected static ?string $password;
+    protected $model = User::class;
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
-            'remember_token' => Str::random(10),
-            'two_factor_secret' => Str::random(10),
-            'two_factor_recovery_codes' => Str::random(10),
-            'two_factor_confirmed_at' => now(),
+            'username'  => fake()->unique()->userName(),
+            'person_id' => Person::factory(),
+            'email'     => fake()->unique()->email(),
+            'password'  => bcrypt('123'),
+            'status' => fake()->randomElement(['active', 'inactive','suspended']),
         ];
     }
 
     /**
-     * Indicate that the model's email address should be unverified.
+     * اتصال نقش‌ها به کاربر
      */
-    public function unverified(): static
+    public function withRoles(int $count = 1)
     {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-        ]);
+        return $this->afterCreating(function (User $user) use ($count) {
+            $roles = Role::query()
+                ->inRandomOrder()
+                ->limit($count)
+                ->pluck('id');
+
+            // اگر Role وجود نداشت، بساز
+            if ($roles->isEmpty()) {
+                $roles = \App\Models\Role::factory()
+                    ->count($count)
+                    ->create()
+                    ->pluck('id');
+            }
+
+            $user->roles()->attach($roles);
+        });
+    }
+    public function admin()
+    {
+        return $this->afterCreating(function (User $user) {
+            $user->username='admin';
+            $user->status='active';
+            $user->save();
+            $adminRole = \App\Models\Role::firstOrCreate(
+                ['name' => 'admin'],
+                ['label' => 'Admin']
+            );
+
+            $user->roles()->syncWithoutDetaching([$adminRole->id]);
+        });
     }
 
-    /**
-     * Indicate that the model does not have two-factor authentication configured.
-     */
-    public function withoutTwoFactor(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'two_factor_secret' => null,
-            'two_factor_recovery_codes' => null,
-            'two_factor_confirmed_at' => null,
-        ]);
-    }
 }

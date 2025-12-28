@@ -90,10 +90,33 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
         });
+        Schema::create('organizations', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('code')->nullable()->unique();
+            $table->json('meta')->nullable();
+
+            $table->foreignId('parent_id')
+                ->nullable()
+                ->constrained('organizations')
+                ->nullOnDelete();
+
+            $table->timestamps();
+        });
         Schema::create('roles', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
+            $table->string('name');
             $table->string('label')->nullable();
+
+            $table->foreignId('parent_id')
+                ->nullable()
+                ->constrained('roles')
+                ->nullOnDelete();
+
+            $table->foreignId('organization_id')
+                ->constrained('organizations')
+                ->cascadeOnDelete();
+
             $table->timestamps();
         });
         Schema::create('role_user', function (Blueprint $table) {
@@ -106,7 +129,9 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
-
+            $table->timestamp('started_at')->nullable();
+            $table->timestamp('ended_at')->nullable();
+            $table->unique(['role_id', 'ended_at'], 'uq_role_active_owner');
             $table->primary(['role_id', 'user_id']);
         });
         Schema::create('permissions', function (Blueprint $table) {
@@ -218,6 +243,7 @@ return new class extends Migration
         Schema::dropIfExists('role_user');
         Schema::dropIfExists('users');
         Schema::dropIfExists('roles');
+        Schema::dropIfExists('organizations');
         Schema::dropIfExists('person_relationships');
         Schema::dropIfExists('persons');
     }

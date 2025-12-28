@@ -3,7 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Models\Auth\Role;
+use App\Models\Role;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -53,11 +53,31 @@ class User extends Authenticatable
     }
     public function roles()
     {
-        return $this->belongsToMany(Role::class, 'role_user', 'user_id', 'role_id');
+        return $this->belongsToMany(Role::class, 'role_user')
+            ->withPivot(['started_at', 'ended_at'])
+            ->wherePivotNull('ended_at');
+    }
+
+    public function rolesHistory()
+    {
+        return $this->belongsToMany(Role::class, 'role_user')
+            ->withPivot(['started_at', 'ended_at'])
+            ->withTimestamps();
     }
 
     public function person()
     {
         return $this->belongsTo(Person::class);
+    }
+
+
+    public function groups()
+    {
+        return $this->morphToMany(Group::class, 'groupable');
+    }
+
+    public function accessPolicies()
+    {
+        return $this->morphMany(AccessPolicy::class, 'policyable');
     }
 }

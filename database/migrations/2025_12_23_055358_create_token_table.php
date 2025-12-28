@@ -12,78 +12,37 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tokens', function (Blueprint $table) {
+// Identity
+            $table->id();
 
-            /* ==============================
-             | Primary Identity
-             |============================== */
-            $table->bigIncrements('id');
+// Relations
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
 
-            /* ==============================
-             | Account Relation
-             |============================== */
-            $table->unsignedBigInteger('user_id');
+// Token security
+            $table->char('token_hash', 64)->index();
+            $table->string('token_type', 30)->index();
+            $table->string('name', 100)->nullable();
 
-            $table->foreign('user_id')
-                ->references('id')
-                ->on('users')
-                ->cascadeOnDelete();
+// Authorization
+            $table->json('abilities')->nullable();
 
-            /* ==============================
-             | Token Security
-             |============================== */
-
-            // هش شده توکن (مثلاً sha256 یا bcrypt)
-            $table->string('token_hash', 255)->unique();
-
-            // نوع توکن (قابل توسعه)
-            $table->string('token_type', 30)
-                ->default('remember')
-                ->comment('remember | session | api | otp');
-
-            /* ==============================
-             | Device & Environment Info
-             |============================== */
-
-            // اگر خواستی fingerprint داشته باشی
+// Device info
             $table->string('device_id', 100)->nullable()->index();
-
-            $table->string('device_name', 100)->nullable()
-                ->comment('e.g. iPhone 14, Windows PC');
-
-            $table->string('platform', 50)->nullable()
-                ->comment('ios | android | windows | mac | linux');
-
-            $table->string('browser', 50)->nullable()
-                ->comment('Chrome, Firefox, Safari');
-
+            $table->string('device_name', 100)->nullable();
+            $table->string('platform', 50)->nullable();
+            $table->string('browser', 50)->nullable();
             $table->ipAddress('ip_address')->nullable();
-
             $table->text('user_agent')->nullable();
 
-            /* ==============================
-             | Lifecycle & Security Control
-             |============================== */
-
-            // آخرین استفاده واقعی
+// Lifecycle
             $table->timestamp('last_used_at')->nullable();
-
-            // تاریخ انقضا
-            $table->timestamp('expires_at')->index();
-
-            // اگر مقدار داشته باشد یعنی توکن باطل شده
+            $table->timestamp('expires_at')->nullable()->index();
+            $table->timestamp('refresh_expires_at')->nullable();
             $table->timestamp('revoked_at')->nullable()->index();
 
-            /* ==============================
-             | Audit
-             |============================== */
+// Meta
             $table->timestamps();
 
-            /* ==============================
-             | Composite Indexes (Performance)
-             |============================== */
-
-            $table->index(['user_id', 'token_type']);
-            $table->index(['user_id', 'revoked_at']);
         });
     }
 

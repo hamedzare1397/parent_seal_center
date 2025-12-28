@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Role;
+use App\Models\Person;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -13,11 +15,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        Role::factory()->count(3)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+// کاربران
+        User::factory()
+            ->count(10)
+            ->withRoles(2)
+            ->create();
+
+// ادمین سیستم
+        User::factory()
+            ->admin()
+            ->create([
+                'username' => 'admin',
+            ]);
+
     }
 }
