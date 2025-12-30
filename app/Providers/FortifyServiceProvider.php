@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Actions\Fortify\AuthenticateUser;
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -55,20 +56,9 @@ class FortifyServiceProvider extends ServiceProvider
             'status' => $request->session()->get('status'),
         ]));
 
-        Fortify::authenticateUsing(function (Request $request) {
-            $username=$request->input('username');
-            $password=$request->input('password');
-
-            if (is_null($username) || is_null($password)) {
-                return null;
-            }
-            $success=Auth::guard('psc_unique')->attempt(['username' => $username, 'password' => $password]);
-            if ($success) {
-                $user=Auth::guard('psc_unique')->user();
-                return $user;
-            }
-            return null;
-        });
+        Fortify::authenticateUsing(
+            fn ($request) => app(AuthenticateUser::class)($request)
+        );
 
         Fortify::resetPasswordView(fn (Request $request) => Inertia::render('auth/ResetPassword', [
             'email' => $request->email,

@@ -80,4 +80,9 @@ class User extends Authenticatable
     {
         return $this->morphMany(AccessPolicy::class, 'policyable');
     }
+    public function permissions()
+    {
+        return $this->morphToMany(Permission::class, 'permissionable');
+    }
+
 }

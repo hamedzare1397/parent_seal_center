@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use App\Models\Auth\AccessPolicy;
-use App\Models\Auth\Group;
+use App\Models\AccessPolicy;
+use App\Models\Group;
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -38,7 +38,7 @@ class Role extends Model
         return $this->morphMany(AccessPolicy::class, 'policyable');
     }
 
-    public function orgUnit()
+    public function organization()
     {
         return $this->belongsTo(Organization::class);
     }

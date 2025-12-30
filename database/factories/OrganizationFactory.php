@@ -16,7 +16,8 @@ class OrganizationFactory extends Factory
         return [
             'name' => $name,
             'code' => Str::slug($name),
-            'parent_id' => null,
+            'created_at'=>now(),
+            'updated_at'=>now(),
         ];
     }
 

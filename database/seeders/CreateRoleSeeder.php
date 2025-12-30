@@ -14,14 +14,26 @@ class CreateRoleSeeder extends Seeder
      */
     public function run(): void
     {
-        Organization::factory()->count(10)->create();
+        $headOrgan=Organization::factory()->create();
+        Organization::factory()->count(10)->create()
+            ->each(function (Organization $organization)use($headOrgan) {
+                $organization->parent()->associate($headOrgan);
+                if (random_int(0, 1)) {
+                    Organization::factory()->count(random_int(1, random_int(1, 4)))->create()
+                        ->each(function (Organization $organChild) use ($organization) {
+                            $organChild->parent()->associate($organization);
+                        });
+                }
+            });
+
         Organization::all()->each(function (Organization $unit) {
 
         // Level 0 – Head Role
-        $head = Role::factory()->create([
-            'name' => $unit->name . ' Director',
-            'organization_id' => $unit->id,
-        ]);
+        $head = Role::factory()
+            ->create([
+                'name' => $unit->name . ' Director',
+                'organization_id' => $unit->id,
+                ]);
 
         // Level 1 – Managers
         $managers = Role::factory()

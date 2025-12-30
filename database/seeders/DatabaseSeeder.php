@@ -15,20 +15,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        Role::factory()->count(3)->create();
-
-// کاربران
-        User::factory()
-            ->count(10)
-            ->withRoles(2)
+        $this->call(CreatePermissionSeeder::class);
+        Person::factory()->count(10)
+            ->withUser()
+            ->withContacts()
             ->create();
-
-// ادمین سیستم
-        User::factory()
-            ->admin()
-            ->create([
-                'username' => 'admin',
-            ]);
-
     }
 }

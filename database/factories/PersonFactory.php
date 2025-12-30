@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Person;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PersonFactory extends Factory
@@ -31,5 +32,16 @@ class PersonFactory extends Factory
         return $this->has(
             \App\Models\Contact::factory()->count($count)
         );
+    }
+
+    public function withUser()
+    {
+        return $this->afterCreating(function ($person) {
+            /** @var User $user */
+            $user = User::factory()
+                ->withRoles()
+                ->create();
+            $user->person()->associate($person)->save();
+        });
     }
 }

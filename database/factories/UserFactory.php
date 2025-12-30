@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Organization;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Person;
@@ -26,25 +27,50 @@ class UserFactory extends Factory
     /**
      * اتصال نقش‌ها به کاربر
      */
-    public function withRoles(int $count = 1)
+    public function withRoles(int $roleCount = null)
     {
-        return $this->afterCreating(function (User $user) use ($count) {
-            $roles = Role::query()
-                ->inRandomOrder()
-                ->limit($count)
-                ->pluck('id');
+        return $this->afterCreating(function (User $user) use ($roleCount) {
 
-            // اگر Role وجود نداشت، بساز
-            if ($roles->isEmpty()) {
-                $roles = \App\Models\Role::factory()
-                    ->count($count)
-                    ->create()
-                    ->pluck('id');
+            $organization = Organization::factory()->create();
+            $roles = Role::factory()
+                ->count($roleCount ?? random_int(1, 3))
+                ->for($organization)
+                ->create();
+            if ($roles->count()>0) {
+                $class = null;
+                try {
+                    $class = get_class($user->roles());
+                    $user->roles()->attach($roles->pluck('id')->toArray(), [
+                        'started_at' => now(),
+                    ]);
+                }catch (\BadMethodCallException $exception){
+                    dd($exception->getMessage(),$class);
+                }
             }
 
-            $user->roles()->attach($roles);
         });
     }
+
+//        return $this->afterCreating(function (User $user) use ($count) {
+//            $roles = Role::query()
+//                ->inRandomOrder()
+//                ->limit($count)
+//                ->pluck('id');
+//
+//            // اگر Role وجود نداشت، بساز
+//            if ($roles->isEmpty()) {
+//                $roles = \App\Models\Role::factory()
+//                    ->count($count)
+//                    ->create()
+//                    ->pluck('id');
+//            }
+//
+//            $user->roles()->attach($roles);
+//        });
+//        return $this->afterCreating(function ($user) {
+//            $this->has(Role::factory()->count(random_int(1, 3))->create(['user_id' => $user->id]));
+//        });
+//    }
     public function admin()
     {
         return $this->afterCreating(function (User $user) {
